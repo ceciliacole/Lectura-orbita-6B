@@ -888,7 +888,7 @@
 
   <script>
     // PEGA AQUÍ LA URL /exec DE TU IMPLEMENTACIÓN DE APPS SCRIPT.
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-oQFuNSyR5mCUGEYBVZFS46pnGUpUlliZswMtw5f7iZKYibE0Vg78zu4JDb4FX2Agnw/exec';
+    const APPS_SCRIPT_URL = 'PEGA_AQUI_LA_URL_DE_APPS_SCRIPT';
     const CONFIG = {"titulo_app": "Lectura en órbita", "subtitulo_app": "6.ºB · Cada libro abre una nueva ruta. Deja aquí la huella de tu lectura.", "max_palabras_resumen": 55, "max_palabras_respuesta": 75, "max_segundos_audio": 60, "permitir_audio": true, "grupos": ["6ºB"], "preguntas": ["¿Qué conflicto mueve realmente la historia?", "¿Qué decisión cambia el rumbo de la historia y por qué?", "Cuenta un detalle importante que no aparezca en la portada ni en la contraportada.", "¿Qué personaje influye más en el protagonista? Explica cómo.", "¿Qué ocurre justo antes del desenlace y por qué es importante?", "¿Qué lugar tiene más peso en la historia y qué sucede allí?", "¿Qué personaje evoluciona más desde el principio hasta el final?", "¿Qué objeto, pista o símbolo resulta importante en la historia?", "¿Cuál es la escena clave del libro y qué cambia después de ella?", "¿A qué tipo de lector o lectora recomendarías este libro y por qué?", "¿Qué habrías hecho tú en el lugar del protagonista? Justifica tu respuesta.", "¿Qué tema importante aparece en el libro además de la historia principal?"]};
     let currentStep = 1;
     let currentQuestion = '';
@@ -957,25 +957,43 @@
 
       const transportForm = document.getElementById('transportForm');
       const transportPayload = document.getElementById('transportPayload');
-      const submitFrame = document.getElementById('submitFrame');
-      let completed = false;
+      const requestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+      payload.requestId = requestId;
 
-      const finish = () => {
+      let completed = false;
+      const timeoutId = setTimeout(() => {
         if (completed) return;
         completed = true;
+        window.removeEventListener('message', handleBackendMessage);
         form.classList.remove('loading');
         submitBtn.textContent = 'Registrar mi lectura';
-        showSuccess('¡Lectura registrada correctamente!');
-      };
+        showMessage(
+          'Apps Script no ha confirmado el guardado. Comprueba que la implementación sea una aplicación web, que se ejecute como tu cuenta, que permita el acceso de los alumnos y que la URL termine en /exec.',
+          'error'
+        );
+      }, 20000);
 
-      submitFrame.onload = finish;
+      function handleBackendMessage(event) {
+        const data = event.data || {};
+        if (!data || data.source !== 'lectura-backend' || data.requestId !== requestId || completed) return;
+
+        completed = true;
+        clearTimeout(timeoutId);
+        window.removeEventListener('message', handleBackendMessage);
+        form.classList.remove('loading');
+        submitBtn.textContent = 'Registrar mi lectura';
+
+        if (data.ok) {
+          showSuccess(data.message || '¡Lectura registrada correctamente!');
+        } else {
+          showMessage(data.message || 'Apps Script no pudo guardar la lectura.', 'error');
+        }
+      }
+
+      window.addEventListener('message', handleBackendMessage);
       transportForm.action = APPS_SCRIPT_URL;
       transportPayload.value = JSON.stringify(payload);
       transportForm.submit();
-
-      // Respaldo visual: el envío por formulario no permite leer la respuesta
-      // de otro dominio, pero sí completar el guardado en Apps Script.
-      setTimeout(finish, 4500);
     });
 
     function goToStep(step) {
