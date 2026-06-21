@@ -888,7 +888,7 @@
 
   <script>
     // PEGA AQUÍ LA URL /exec DE TU IMPLEMENTACIÓN DE APPS SCRIPT.
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-oQFuNSyR5mCUGEYBVZFS46pnGUpUlliZswMtw5f7iZKYibE0Vg78zu4JDb4FX2Agnw/exec';
+    const APPS_SCRIPT_URL = 'PEGA_AQUI_LA_URL_DE_APPS_SCRIPT';
     const CONFIG = {"titulo_app": "Lectura en órbita", "subtitulo_app": "6.ºB · Cada libro abre una nueva ruta. Deja aquí la huella de tu lectura.", "max_palabras_resumen": 55, "max_palabras_respuesta": 75, "max_segundos_audio": 60, "permitir_audio": true, "grupos": ["6ºB"], "preguntas": ["¿Qué conflicto mueve realmente la historia?", "¿Qué decisión cambia el rumbo de la historia y por qué?", "Cuenta un detalle importante que no aparezca en la portada ni en la contraportada.", "¿Qué personaje influye más en el protagonista? Explica cómo.", "¿Qué ocurre justo antes del desenlace y por qué es importante?", "¿Qué lugar tiene más peso en la historia y qué sucede allí?", "¿Qué personaje evoluciona más desde el principio hasta el final?", "¿Qué objeto, pista o símbolo resulta importante en la historia?", "¿Cuál es la escena clave del libro y qué cambia después de ella?", "¿A qué tipo de lector o lectora recomendarías este libro y por qué?", "¿Qué habrías hecho tú en el lugar del protagonista? Justifica tu respuesta.", "¿Qué tema importante aparece en el libro además de la historia principal?"]};
     let currentStep = 1;
     let currentQuestion = '';
@@ -1112,7 +1112,7 @@
         ];
         const supportedType = preferredTypes.find(type => MediaRecorder.isTypeSupported(type));
         mediaRecorder = supportedType
-          ? new MediaRecorder(mediaStream, { mimeType: supportedType })
+          ? new MediaRecorder(mediaStream, { mimeType: supportedType, audioBitsPerSecond: 32000 })
           : new MediaRecorder(mediaStream);
 
         mediaRecorder.ondataavailable = event => {
@@ -1123,7 +1123,8 @@
           stopTimer();
           stopMediaStream();
 
-          const mimeType = mediaRecorder.mimeType || recordedChunks[0]?.type || 'audio/webm';
+          const recorderMimeType = mediaRecorder.mimeType || recordedChunks[0]?.type || 'audio/webm';
+          const mimeType = normalizeAudioMimeType(recorderMimeType);
           const blob = new Blob(recordedChunks, { type: mimeType });
           if (!blob.size) {
             showMessage('La grabación está vacía. Prueba de nuevo o sube un archivo.', 'error');
@@ -1165,6 +1166,12 @@
           'error'
         );
       }
+    }
+
+
+    function normalizeAudioMimeType(value) {
+      const type = String(value || 'audio/webm').toLowerCase().split(';')[0].trim();
+      return type.startsWith('audio/') ? type : 'audio/webm';
     }
 
     function startTimer() {
