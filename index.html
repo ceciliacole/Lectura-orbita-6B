@@ -968,10 +968,10 @@
         form.classList.remove('loading');
         submitBtn.textContent = 'Registrar mi lectura';
         showMessage(
-          'Apps Script no ha confirmado el guardado. Comprueba que la implementación sea una aplicación web, que se ejecute como tu cuenta, que permita el acceso de los alumnos y que la URL termine en /exec.',
+          'Apps Script no ha confirmado el guardado después de 90 segundos. Revisa la hoja Lecturas y el apartado Ejecuciones de Apps Script: la respuesta puede haberse guardado aunque la confirmación haya tardado.',
           'error'
         );
-      }, 20000);
+      }, 90000);
 
       function handleBackendMessage(event) {
         const data = event.data || {};
