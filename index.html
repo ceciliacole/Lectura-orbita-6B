@@ -1,102 +1,1378 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#7357d8">
-  <title>Lectura en órbita · 6.ºB</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lectura en órbita</title>
+  <style>
+    :root {
+      --navy: #18213a;
+      --ink: #27324a;
+      --muted: #6e7890;
+      --paper: #fffdf8;
+      --cream: #fff7e8;
+      --purple: #7357d8;
+      --purple-dark: #5638bd;
+      --coral: #ff766f;
+      --yellow: #ffd166;
+      --aqua: #69d2c5;
+      --blue: #6ca6ff;
+      --green: #5dbb8a;
+      --danger: #d95050;
+      --border: #e5e0d6;
+      --shadow: 0 24px 70px rgba(40, 31, 90, .14);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 8% 10%, rgba(255, 209, 102, .35), transparent 20%),
+        radial-gradient(circle at 90% 18%, rgba(105, 210, 197, .28), transparent 18%),
+        linear-gradient(180deg, #f4efff 0%, #fffaf0 50%, #f3fbff 100%);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      filter: blur(2px);
+      opacity: .7;
+    }
+
+    body::before {
+      width: 260px;
+      height: 260px;
+      background: rgba(115, 87, 216, .12);
+      left: -100px;
+      bottom: 8%;
+    }
+
+    body::after {
+      width: 220px;
+      height: 220px;
+      background: rgba(255, 118, 111, .12);
+      right: -80px;
+      top: 38%;
+    }
+
+    .shell {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      padding: 26px 18px 56px;
+    }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 24px;
+      align-items: center;
+      margin: 8px 0 26px;
+      padding: 28px 30px;
+      border-radius: var(--radius-xl);
+      background: rgba(255, 253, 248, .88);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, .9);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      right: -65px;
+      bottom: -90px;
+      background: linear-gradient(135deg, rgba(255, 209, 102, .45), rgba(255, 118, 111, .35));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--purple-dark);
+      background: #eee8ff;
+      font-size: .86rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 10px;
+      font-size: clamp(2.15rem, 5vw, 4rem);
+      line-height: .98;
+      color: var(--navy);
+      letter-spacing: -.04em;
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.6;
+    }
+
+    .hero-illustration {
+      display: grid;
+      place-items: center;
+      min-height: 235px;
+    }
+
+    .hero-illustration svg {
+      width: min(100%, 330px);
+      height: auto;
+      filter: drop-shadow(0 18px 22px rgba(39, 50, 74, .15));
+    }
+
+    .message {
+      display: none;
+      margin: 0 0 16px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-weight: 800;
+      box-shadow: 0 10px 28px rgba(39, 50, 74, .08);
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0ef;
+      color: #9d2f2f;
+      border: 1px solid #ffd0cd;
+    }
+
+    .message.success {
+      display: block;
+      background: #eaf9f2;
+      color: #176d49;
+      border: 1px solid #c5ead8;
+    }
+
+    .progress-wrap {
+      margin: 0 0 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(255,255,255,.9);
+      box-shadow: 0 10px 28px rgba(39, 50, 74, .06);
+    }
+
+    .progress-labels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .progress {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .progress span {
+      height: 10px;
+      border-radius: 999px;
+      background: #e8e2f2;
+      transition: .25s ease;
+    }
+
+    .progress span.active:nth-child(1) { background: var(--coral); }
+    .progress span.active:nth-child(2) { background: var(--yellow); }
+    .progress span.active:nth-child(3) { background: var(--aqua); }
+
+    .card {
+      display: none;
+      position: relative;
+      background: rgba(255, 253, 248, .96);
+      border: 1px solid rgba(255,255,255,.95);
+      border-radius: var(--radius-xl);
+      padding: clamp(22px, 4vw, 38px);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card.active { display: block; }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      border-radius: 36px;
+      transform: rotate(18deg);
+      right: -45px;
+      top: -50px;
+      background: linear-gradient(135deg, rgba(115, 87, 216, .15), rgba(108, 166, 255, .12));
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-icon {
+      flex: 0 0 54px;
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 17px;
+      font-size: 26px;
+      box-shadow: 0 10px 20px rgba(39,50,74,.10);
+    }
+
+    .step1-icon { background: #ffe8e5; }
+    .step2-icon { background: #fff2c9; }
+    .step3-icon { background: #dff7f3; }
+
+    h2 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(1.45rem, 3vw, 2rem);
+    }
+
+    .sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field { margin: 18px 0; }
+
+    .fixed-group {
+      width: 100%;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 14px 15px;
+      border: 2px solid #dcd2ff;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #eee9ff, #f8f5ff);
+      color: var(--purple-dark);
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+
+    label, legend {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    input, select, textarea, button { font: inherit; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 15px;
+      padding: 14px 15px;
+      background: #fff;
+      color: var(--ink);
+      transition: .18s ease;
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: #cfc5ed;
+    }
+
+    input:focus, select:focus, textarea:focus, button:focus-visible {
+      outline: 4px solid rgba(255, 209, 102, .38);
+      border-color: var(--purple);
+    }
+
+    textarea {
+      min-height: 145px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .counter {
+      margin-top: 7px;
+      text-align: right;
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 700;
+    }
+
+    .counter.over { color: var(--danger); }
+
+    .stars {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .stars input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .stars label {
+      cursor: pointer;
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      font-size: 29px;
+      background: #fff;
+      transition: .18s ease;
+    }
+
+    .stars label:hover {
+      transform: translateY(-3px) rotate(-2deg);
+      border-color: var(--yellow);
+      box-shadow: 0 10px 18px rgba(255, 209, 102, .22);
+    }
+
+    .stars input:checked + label {
+      border-color: var(--purple);
+      background: #f1edff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 18px rgba(115, 87, 216, .18);
+    }
+
+    .prompt-card {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fff3cd, #fff9eb);
+      border: 1px solid #f7dda1;
+    }
+
+    .prompt-card .emoji {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: white;
+      font-size: 26px;
+    }
+
+    .question-box {
+      margin: 14px 0 20px;
+      padding: 20px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eee9ff, #f7f4ff);
+      border: 1px solid #dcd2ff;
+      border-left: 7px solid var(--purple);
+      color: var(--navy);
+      font-size: 1.15rem;
+      font-weight: 850;
+      line-height: 1.5;
+    }
+
+    .response-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tab {
+      min-height: 54px;
+      background: white;
+      color: var(--ink);
+      border: 2px solid var(--border);
+    }
+
+    .tab.active {
+      border-color: var(--purple);
+      background: #eee9ff;
+      color: var(--purple-dark);
+      box-shadow: 0 10px 20px rgba(115, 87, 216, .12);
+    }
+
+    .audio-panel {
+      display: none;
+      text-align: center;
+      padding: 24px;
+      border: 2px dashed #b8dcd6;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #effbf8, #f8fffd);
+    }
+
+    .audio-panel.active { display: block; }
+
+    .audio-upload-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 13px 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      color: #fff;
+      font-weight: 850;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(86, 56, 189, .18);
+    }
+
+    .audio-upload-label:hover { transform: translateY(-2px); }
+
+    .audio-upload-label input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .audio-file-info {
+      margin: 14px 0 0;
+      color: var(--navy);
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .recorder-box {
+      padding: 20px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid #d8eee9;
+      box-shadow: 0 10px 26px rgba(39, 50, 74, .07);
+    }
+
+    .recorder-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 32px;
+      margin-bottom: 10px;
+      color: var(--navy);
+      font-weight: 850;
+    }
+
+    .record-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #b8becb;
+    }
+
+    .record-dot.live {
+      background: var(--danger);
+      animation: pulse 1s infinite;
+    }
+
+    .timer {
+      margin: 4px 0 14px;
+      color: var(--navy);
+      font-size: 2.35rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .03em;
+    }
+
+    .wave {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      height: 40px;
+      margin-bottom: 16px;
+    }
+
+    .wave span {
+      width: 5px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--aqua);
+      opacity: .55;
+    }
+
+    .wave.live span { animation: wave 900ms ease-in-out infinite; }
+    .wave.live span:nth-child(2) { animation-delay: 100ms; }
+    .wave.live span:nth-child(3) { animation-delay: 200ms; }
+    .wave.live span:nth-child(4) { animation-delay: 300ms; }
+    .wave.live span:nth-child(5) { animation-delay: 400ms; }
+    .wave.live span:nth-child(6) { animation-delay: 500ms; }
+    .wave.live span:nth-child(7) { animation-delay: 600ms; }
+
+    .audio-choice-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 850;
+    }
+
+    .audio-choice-divider::before,
+    .audio-choice-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #d9e8e4;
+    }
+
+    .audio-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(.7); opacity: .45; }
+    }
+
+    @keyframes wave {
+      0%, 100% { height: 9px; }
+      50% { height: 34px; }
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: .96rem;
+      line-height: 1.55;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    button {
+      min-height: 50px;
+      padding: 13px 20px;
+      border: 0;
+      border-radius: 14px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+
+    .primary {
+      flex: 1;
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(86, 56, 189, .22);
+    }
+
+    .secondary {
+      background: #f0edf6;
+      color: var(--ink);
+    }
+
+    .danger {
+      background: #ffecec;
+      color: var(--danger);
+    }
+
+    .success-screen {
+      text-align: center;
+      padding-top: 42px;
+      padding-bottom: 42px;
+    }
+
+    .success-art {
+      width: min(100%, 360px);
+      margin: 0 auto 14px;
+    }
+
+    .success-art svg { width: 100%; height: auto; }
+
+    .loading {
+      pointer-events: none;
+      opacity: .68;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero p { margin-inline: auto; }
+
+      .hero-illustration { min-height: 190px; }
+
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 540px) {
+      .shell { padding-inline: 12px; }
+      .hero { padding: 24px 20px; }
+      .actions { flex-direction: column-reverse; }
+      .response-tabs { grid-template-columns: 1fr; }
+      .progress-labels { font-size: .72rem; }
+      .card { border-radius: 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
 </head>
 <body>
-<main class="shell">
-  <header class="hero">
-    <div>
-      <span class="eyebrow">6.ºB · Pasaporte lector</span>
-      <h1>Lectura en órbita</h1>
-      <p>Cada libro abre una nueva ruta. Deja aquí la huella de tu lectura.</p>
-    </div>
-    <svg class="hero-art" viewBox="0 0 420 300" aria-hidden="true">
-      <defs>
-        <linearGradient id="a"><stop stop-color="#7357d8"/><stop offset="1" stop-color="#9f87f4"/></linearGradient>
-        <linearGradient id="b"><stop stop-color="#ff766f"/><stop offset="1" stop-color="#ff9a8d"/></linearGradient>
-      </defs>
-      <circle cx="315" cy="64" r="28" fill="#ffd166"/>
-      <circle cx="95" cy="72" r="9" fill="#69d2c5"/>
-      <path d="M200 48c58 17 100 68 104 128-31-14-62-16-94-6-5-46-8-82-10-122z" fill="url(#a)"/>
-      <path d="M200 48c-58 17-100 68-104 128 31-14 62-16 94-6 5-46 8-82 10-122z" fill="url(#b)"/>
-      <path d="M200 48v122" stroke="#fff" stroke-width="6"/>
-      <path d="M106 180c38-14 69-12 94-4 25-8 56-10 94 4" fill="none" stroke="#27324a" stroke-width="7" stroke-linecap="round"/>
-    </svg>
-  </header>
-
-  <div id="message" class="message" role="alert" aria-live="polite"></div>
-  <div class="progress"><span class="active"></span><span></span><span></span></div>
-
-  <form id="readerForm" novalidate>
-    <section class="card active" data-step="1">
-      <div class="heading"><div class="icon coral">📘</div><div><h2>Identifica tu lectura</h2><p>Solo los datos esenciales.</p></div></div>
-      <div class="grid">
-        <label>Código del lector
-          <input id="codigo" maxlength="12" placeholder="Ejemplo: A01" autocomplete="off" required>
-        </label>
-        <label>Grupo<div class="fixed">6.ºB</div></label>
-      </div>
-      <label>Título del libro<input id="titulo" maxlength="120" required></label>
-      <label>Autor o autora<input id="autor" maxlength="100" required></label>
-      <fieldset>
-        <legend>Tu valoración</legend>
-        <div class="stars">
-          <input id="s1" type="radio" name="rating" value="1"><label for="s1">⭐</label>
-          <input id="s2" type="radio" name="rating" value="2"><label for="s2">⭐</label>
-          <input id="s3" type="radio" name="rating" value="3"><label for="s3">⭐</label>
-          <input id="s4" type="radio" name="rating" value="4"><label for="s4">⭐</label>
-          <input id="s5" type="radio" name="rating" value="5"><label for="s5">⭐</label>
-        </div>
-      </fieldset>
-      <button type="button" class="primary" data-next="2">Continuar la ruta</button>
-    </section>
-
-    <section class="card" data-step="2">
-      <div class="heading"><div class="icon yellow">✍️</div><div><h2>Resume con precisión</h2><p>Selecciona lo esencial con tus palabras.</p></div></div>
-      <div class="tip">💡 Piensa en situación inicial, conflicto y desenlace.</div>
-      <label>Resumen<textarea id="resumen" placeholder="Al principio... El conflicto principal... Finalmente..." required></textarea></label>
-      <div id="summaryCount" class="counter">0 / 55 palabras</div>
-      <div class="actions"><button type="button" class="secondary" data-back="1">Volver</button><button type="button" class="primary" data-next="3">Descubrir el reto</button></div>
-    </section>
-
-    <section class="card" data-step="3">
-      <div class="heading"><div class="icon aqua">🧭</div><div><h2>Supera tu reto lector</h2><p>La pregunta cambia en cada registro.</p></div></div>
-      <div id="question" class="question"></div>
-      <div class="tabs">
-        <button type="button" id="textTab" class="tab active">✍️ Respuesta escrita</button>
-        <button type="button" id="audioTab" class="tab">🎙️ Respuesta en audio</button>
-      </div>
-      <div id="textPanel">
-        <label>Tu respuesta<textarea id="respuesta" placeholder="Apoya tu idea con un detalle concreto del libro."></textarea></label>
-        <div id="answerCount" class="counter">0 / 75 palabras</div>
-      </div>
-      <div id="audioPanel" class="audio-panel hidden">
-        <div id="timer" class="timer">00:00</div>
-        <p>Máximo 60 segundos. Puedes escuchar y repetir antes de enviar.</p>
-        <button type="button" id="recordBtn" class="record">🎙️ Empezar a grabar</button>
-        <button type="button" id="clearBtn" class="secondary hidden">Repetir audio</button>
-        <audio id="preview" controls class="hidden"></audio>
-      </div>
-      <div class="actions"><button type="button" class="secondary" data-back="2">Volver</button><button id="submitBtn" class="primary" type="submit">Registrar mi lectura</button></div>
-    </section>
-
-    <section id="success" class="card success">
-      <div class="success-emoji">🎉📚</div><h2>¡Lectura registrada!</h2>
-      <p>Tu huella lectora ya forma parte de tu recorrido.</p>
-      <button type="button" id="again" class="primary">Registrar otro libro</button>
-    </section>
+  <iframe id="submitFrame" name="submitFrame" hidden></iframe>
+  <form id="transportForm" method="post" target="submitFrame" hidden>
+    <input id="transportPayload" name="payload" type="hidden">
   </form>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">6.ºB · Pasaporte lector</div>
+        <h1>Lectura en órbita</h1>
+        <p>6.ºB · Cada libro abre una nueva ruta. Deja aquí la huella de tu lectura.</p>
+      </div>
 
-  <iframe name="receiverFrame" id="receiverFrame" class="hidden" title="Envío"></iframe>
-  <form id="senderForm" method="post" target="receiverFrame" class="hidden"></form>
-  <p class="footer">Aplicación exclusiva de 6.ºB. Usa tu código anónimo y no escribas tu nombre completo.</p>
-</main>
-<script src="config.js"></script>
-<script src="app.js"></script>
+      <div class="hero-illustration" aria-hidden="true">
+        <svg viewBox="0 0 420 300" role="img">
+          <defs>
+            <linearGradient id="bookA" x1="0" x2="1">
+              <stop offset="0" stop-color="#7357d8"/>
+              <stop offset="1" stop-color="#9f87f4"/>
+            </linearGradient>
+            <linearGradient id="bookB" x1="0" x2="1">
+              <stop offset="0" stop-color="#ff766f"/>
+              <stop offset="1" stop-color="#ff9a8d"/>
+            </linearGradient>
+          </defs>
+          <circle cx="315" cy="64" r="28" fill="#ffd166"/>
+          <circle cx="95" cy="72" r="9" fill="#69d2c5"/>
+          <circle cx="66" cy="112" r="5" fill="#6ca6ff"/>
+          <path d="M200 48c58 17 100 68 104 128-31-14-62-16-94-6-5-46-8-82-10-122z" fill="url(#bookA)"/>
+          <path d="M200 48c-58 17-100 68-104 128 31-14 62-16 94-6 5-46 8-82 10-122z" fill="url(#bookB)"/>
+          <path d="M200 48v122" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+          <path d="M106 180c38-14 69-12 94-4 25-8 56-10 94 4" fill="none" stroke="#27324a" stroke-width="7" stroke-linecap="round"/>
+          <path d="M130 214c18 4 34 13 48 28" fill="none" stroke="#69d2c5" stroke-width="10" stroke-linecap="round"/>
+          <path d="M270 214c-18 4-34 13-48 28" fill="none" stroke="#6ca6ff" stroke-width="10" stroke-linecap="round"/>
+          <rect x="178" y="216" width="44" height="38" rx="12" fill="#ffd166"/>
+          <path d="M190 228h20M190 238h20" stroke="#27324a" stroke-width="4" stroke-linecap="round"/>
+          <path d="M312 136l8 16 18 2-13 12 4 18-17-9-16 9 3-18-13-12 18-2z" fill="#ffd166"/>
+        </svg>
+      </div>
+    </section>
+
+    <div id="message" class="message" role="alert" aria-live="polite"></div>
+
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span>Tu libro</span>
+        <span>Tu resumen</span>
+        <span>Tu reto</span>
+      </div>
+      <div class="progress" aria-label="Progreso">
+        <span id="p1" class="active"></span>
+        <span id="p2"></span>
+        <span id="p3"></span>
+      </div>
+    </div>
+
+    <form id="readerForm" novalidate>
+      <section id="step1" class="card active">
+        <div class="section-heading">
+          <div class="section-icon step1-icon">📘</div>
+          <div>
+            <h2>1. Identifica tu lectura</h2>
+            <p class="sub">Solo necesitas los datos esenciales del libro.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="codigo">Código del lector</label>
+            <input id="codigo" name="codigo" type="text" maxlength="12"
+                   placeholder="Ejemplo: A01" autocomplete="off" required>
+          </div>
+
+          <div class="field">
+            <label>Grupo</label>
+            <div class="fixed-group" aria-label="Grupo 6.ºB">6.ºB</div>
+            <input id="grupo" name="grupo" type="hidden" value="6ºB">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="titulo">Título del libro</label>
+          <input id="titulo" name="titulo" type="text" maxlength="120" required>
+        </div>
+
+        <div class="field">
+          <label for="autor">Autor o autora</label>
+          <input id="autor" name="autor" type="text" maxlength="100" required>
+        </div>
+
+        <fieldset class="field" style="border:0;padding:0">
+          <legend>Tu valoración</legend>
+          <div class="stars" role="radiogroup" aria-label="Valoración">
+              <input id="star1" type="radio" name="valoracion" value="1" required>
+              <label for="star1" aria-label="1 estrellas">⭐</label>
+              <input id="star2" type="radio" name="valoracion" value="2" required>
+              <label for="star2" aria-label="2 estrellas">⭐</label>
+              <input id="star3" type="radio" name="valoracion" value="3" required>
+              <label for="star3" aria-label="3 estrellas">⭐</label>
+              <input id="star4" type="radio" name="valoracion" value="4" required>
+              <label for="star4" aria-label="4 estrellas">⭐</label>
+              <input id="star5" type="radio" name="valoracion" value="5" required>
+              <label for="star5" aria-label="5 estrellas">⭐</label>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" class="primary" onclick="goToStep(2)">Continuar la ruta</button>
+        </div>
+      </section>
+
+      <section id="step2" class="card">
+        <div class="section-heading">
+          <div class="section-icon step2-icon">✍️</div>
+          <div>
+            <h2>2. Resume con precisión</h2>
+            <p class="sub">Selecciona lo esencial y exprésalo con tus propias palabras.</p>
+          </div>
+        </div>
+
+        <div class="prompt-card">
+          <div class="emoji">💡</div>
+          <div>
+            <strong>Pista para organizarte</strong>
+            <p class="hint" style="margin-bottom:0">Puedes pensar en tres momentos: situación inicial, conflicto principal y desenlace.</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="resumen">Resumen del libro</label>
+          <textarea id="resumen" name="resumen"
+                    placeholder="Al principio... El conflicto principal... Finalmente..."
+                    required></textarea>
+          <div id="summaryCounter" class="counter">0 / 55 palabras</div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="secondary" onclick="goToStep(1)">Volver</button>
+          <button type="button" class="primary" onclick="goToStep(3)">Descubrir el reto sorpresa</button>
+        </div>
+      </section>
+
+      <section id="step3" class="card">
+        <div class="section-heading">
+          <div class="section-icon step3-icon">🧭</div>
+          <div>
+            <h2>3. Supera tu reto lector</h2>
+            <p class="sub">La pregunta cambia en cada registro.</p>
+          </div>
+        </div>
+
+        <div id="questionBox" class="question-box"></div>
+
+        <div class="response-tabs">
+          <button id="textTab" type="button" class="tab active" onclick="setResponseMode('text')">✍️ Respuesta escrita</button>
+          
+          <button id="audioTab" type="button" class="tab" onclick="setResponseMode('audio')">🎙️ Respuesta en audio</button>
+          
+        </div>
+
+        <div id="textPanel">
+          <label for="respuestaTexto">Tu respuesta</label>
+          <textarea id="respuestaTexto" name="respuestaTexto"
+                    placeholder="Explica tu idea y apóyala con un detalle concreto del libro."></textarea>
+          <div id="answerCounter" class="counter">0 / 75 palabras</div>
+        </div>
+
+        
+        <div id="audioPanel" class="audio-panel">
+          <div class="recorder-box">
+            <div class="recorder-status">
+              <span id="recordDot" class="record-dot"></span>
+              <span id="recordStatus">Pulsa el botón y empieza a hablar</span>
+            </div>
+            <div id="timer" class="timer">00:00</div>
+            <div id="wave" class="wave" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p class="hint">Puedes grabar hasta 60 segundos. El audio se convertirá automáticamente en un archivo para guardarlo en Drive.</p>
+            <div class="audio-buttons">
+              <button id="recordBtn" type="button" class="danger" onclick="toggleRecording()">🎙️ Grabar audio</button>
+              <button id="clearAudioBtn" type="button" class="secondary" onclick="clearAudio()" style="display:none">🗑️ Borrar y repetir</button>
+            </div>
+          </div>
+
+          <div class="audio-choice-divider">O, si el micrófono no funciona</div>
+
+          <label class="audio-upload-label" for="audioFile">
+            ⬆️ Subir un archivo de audio
+            <input id="audioFile" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.webm,.aac" onchange="handleAudioFile(event)">
+          </label>
+          <p class="hint">Formatos habituales: MP3, M4A, WAV, OGG o WEBM. Tamaño máximo: 10 MB.</p>
+          <p id="audioFileInfo" class="audio-file-info" style="display:none"></p>
+          <audio id="audioPreview" controls style="display:none"></audio>
+        </div>
+        
+
+        <div class="actions">
+          <button type="button" class="secondary" onclick="goToStep(2)">Volver</button>
+          <button id="submitBtn" type="submit" class="primary">Registrar mi lectura</button>
+        </div>
+      </section>
+
+      <section id="successStep" class="card success-screen">
+        <div class="success-art" aria-hidden="true">
+          <svg viewBox="0 0 420 230">
+            <circle cx="210" cy="110" r="88" fill="#eee9ff"/>
+            <path d="M115 142c35-19 67-19 95-8 28-11 60-11 95 8" fill="none" stroke="#27324a" stroke-width="8" stroke-linecap="round"/>
+            <path d="M210 60c42 9 72 42 74 84-25-8-50-7-74 3-24-10-49-11-74-3 2-42 32-75 74-84z" fill="#7357d8"/>
+            <path d="M210 60v87" stroke="#fff" stroke-width="6"/>
+            <circle cx="318" cy="66" r="18" fill="#ffd166"/>
+            <circle cx="103" cy="76" r="11" fill="#69d2c5"/>
+            <path d="M332 122l5 10 11 1-8 7 2 11-10-5-10 5 2-11-8-7 11-1z" fill="#ff766f"/>
+          </svg>
+        </div>
+        <h2>¡Lectura registrada!</h2>
+        <p class="sub">Tu huella lectora ya forma parte de tu recorrido.</p>
+        <button type="button" class="primary" onclick="resetForm()">Registrar otro libro</button>
+      </section>
+    </form>
+
+    <p class="footer-note">Aplicación exclusiva de 6.ºB. Utiliza siempre tu código anónimo y no escribas tu nombre completo.</p>
+  </main>
+
+  <script>
+    // PEGA AQUÍ LA URL /exec DE TU IMPLEMENTACIÓN DE APPS SCRIPT.
+    const APPS_SCRIPT_URL = 'PEGA_AQUI_LA_URL_DE_APPS_SCRIPT';
+    const CONFIG = {"titulo_app": "Lectura en órbita", "subtitulo_app": "6.ºB · Cada libro abre una nueva ruta. Deja aquí la huella de tu lectura.", "max_palabras_resumen": 55, "max_palabras_respuesta": 75, "max_segundos_audio": 60, "permitir_audio": true, "grupos": ["6ºB"], "preguntas": ["¿Qué conflicto mueve realmente la historia?", "¿Qué decisión cambia el rumbo de la historia y por qué?", "Cuenta un detalle importante que no aparezca en la portada ni en la contraportada.", "¿Qué personaje influye más en el protagonista? Explica cómo.", "¿Qué ocurre justo antes del desenlace y por qué es importante?", "¿Qué lugar tiene más peso en la historia y qué sucede allí?", "¿Qué personaje evoluciona más desde el principio hasta el final?", "¿Qué objeto, pista o símbolo resulta importante en la historia?", "¿Cuál es la escena clave del libro y qué cambia después de ella?", "¿A qué tipo de lector o lectora recomendarías este libro y por qué?", "¿Qué habrías hecho tú en el lugar del protagonista? Justifica tu respuesta.", "¿Qué tema importante aparece en el libro además de la historia principal?"]};
+    let currentStep = 1;
+    let currentQuestion = '';
+    let responseMode = 'text';
+    const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
+    let audioFile = null;
+    let audioDataUrl = '';
+    let audioFileName = '';
+    let audioMimeType = '';
+    let audioObjectUrl = '';
+    let mediaRecorder = null;
+    let mediaStream = null;
+    let recordedChunks = [];
+    let timerInterval = null;
+    let seconds = 0;
+
+    const form = document.getElementById('readerForm');
+    const message = document.getElementById('message');
+    const resumen = document.getElementById('resumen');
+    const respuestaTexto = document.getElementById('respuestaTexto');
+
+    document.addEventListener('DOMContentLoaded', () => {
+      pickQuestion();
+      updateCounter(resumen, 'summaryCounter', CONFIG.max_palabras_resumen);
+      updateCounter(respuestaTexto, 'answerCounter', CONFIG.max_palabras_respuesta);
+    });
+
+    resumen.addEventListener('input', () =>
+      updateCounter(resumen, 'summaryCounter', CONFIG.max_palabras_resumen)
+    );
+
+    respuestaTexto.addEventListener('input', () =>
+      updateCounter(respuestaTexto, 'answerCounter', CONFIG.max_palabras_respuesta)
+    );
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      if (!validateStep(3)) return;
+      if (!APPS_SCRIPT_URL.startsWith('https://script.google.com/macros/s/')) {
+        showMessage('La aplicación aún no tiene configurada la dirección de guardado.', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.textContent = 'Guardando...';
+      form.classList.add('loading');
+
+      const data = new FormData(form);
+      const payload = {
+        codigo: String(data.get('codigo') || '').trim().toUpperCase(),
+        grupo: data.get('grupo'),
+        titulo: String(data.get('titulo') || '').trim(),
+        autor: String(data.get('autor') || '').trim(),
+        valoracion: data.get('valoracion'),
+        resumen: String(data.get('resumen') || '').trim(),
+        pregunta: currentQuestion,
+        respuestaTexto: responseMode === 'text'
+          ? String(data.get('respuestaTexto') || '').trim()
+          : '',
+        audioDataUrl: responseMode === 'audio' ? audioDataUrl : '',
+        audioFileName: responseMode === 'audio' ? audioFileName : '',
+        audioMimeType: responseMode === 'audio' ? audioMimeType : ''
+      };
+
+      const transportForm = document.getElementById('transportForm');
+      const transportPayload = document.getElementById('transportPayload');
+      const submitFrame = document.getElementById('submitFrame');
+      let completed = false;
+
+      const finish = () => {
+        if (completed) return;
+        completed = true;
+        form.classList.remove('loading');
+        submitBtn.textContent = 'Registrar mi lectura';
+        showSuccess('¡Lectura registrada correctamente!');
+      };
+
+      submitFrame.onload = finish;
+      transportForm.action = APPS_SCRIPT_URL;
+      transportPayload.value = JSON.stringify(payload);
+      transportForm.submit();
+
+      // Respaldo visual: el envío por formulario no permite leer la respuesta
+      // de otro dominio, pero sí completar el guardado en Apps Script.
+      setTimeout(finish, 4500);
+    });
+
+    function goToStep(step) {
+      clearMessage();
+      if (step > currentStep && !validateStep(currentStep)) return;
+
+      document.querySelectorAll('.card').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${step}`).classList.add('active');
+
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`p${i}`).classList.toggle('active', i <= step);
+      }
+
+      currentStep = step;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateStep(step) {
+      if (step === 1) {
+        const fields = ['codigo', 'grupo', 'titulo', 'autor'];
+        for (const id of fields) {
+          const el = document.getElementById(id);
+          if (!el.value.trim()) {
+            showMessage('Completa todos los datos del libro.', 'error');
+            el.focus();
+            return false;
+          }
+        }
+        if (!form.querySelector('input[name="valoracion"]:checked')) {
+          showMessage('Selecciona una valoración con estrellas.', 'error');
+          return false;
+        }
+      }
+
+      if (step === 2) {
+        const words = countWords(resumen.value);
+        if (!resumen.value.trim()) {
+          showMessage('Escribe un resumen breve.', 'error');
+          resumen.focus();
+          return false;
+        }
+        if (words > CONFIG.max_palabras_resumen) {
+          showMessage(`El resumen no puede superar ${CONFIG.max_palabras_resumen} palabras.`, 'error');
+          resumen.focus();
+          return false;
+        }
+      }
+
+      if (step === 3) {
+        if (responseMode === 'text') {
+          const words = countWords(respuestaTexto.value);
+          if (!respuestaTexto.value.trim()) {
+            showMessage('Escribe una respuesta al reto sorpresa.', 'error');
+            respuestaTexto.focus();
+            return false;
+          }
+          if (words > CONFIG.max_palabras_respuesta) {
+            showMessage(`La respuesta no puede superar ${CONFIG.max_palabras_respuesta} palabras.`, 'error');
+            respuestaTexto.focus();
+            return false;
+          }
+        } else if (!audioDataUrl) {
+          showMessage('Graba o sube un audio antes de enviar.', 'error');
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    function pickQuestion() {
+      const questions = CONFIG.preguntas || [];
+      currentQuestion = questions.length
+        ? questions[Math.floor(Math.random() * questions.length)]
+        : 'Cuenta un detalle importante del libro.';
+      document.getElementById('questionBox').textContent = currentQuestion;
+    }
+
+    function setResponseMode(mode) {
+      responseMode = mode;
+      document.getElementById('textTab').classList.toggle('active', mode === 'text');
+      const textPanel = document.getElementById('textPanel');
+      textPanel.style.display = mode === 'text' ? 'block' : 'none';
+
+      const audioTab = document.getElementById('audioTab');
+      const audioPanel = document.getElementById('audioPanel');
+      if (audioTab && audioPanel) {
+        audioTab.classList.toggle('active', mode === 'audio');
+        audioPanel.classList.toggle('active', mode === 'audio');
+      }
+    }
+
+    async function toggleRecording() {
+      clearMessage();
+
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        showMessage('Este navegador no permite grabar desde la aplicación. Utiliza “Subir un archivo de audio”.', 'error');
+        return;
+      }
+
+      try {
+        clearAudio(false);
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordedChunks = [];
+
+        const preferredTypes = [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4',
+          'audio/ogg;codecs=opus'
+        ];
+        const supportedType = preferredTypes.find(type => MediaRecorder.isTypeSupported(type));
+        mediaRecorder = supportedType
+          ? new MediaRecorder(mediaStream, { mimeType: supportedType })
+          : new MediaRecorder(mediaStream);
+
+        mediaRecorder.ondataavailable = event => {
+          if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          stopTimer();
+          stopMediaStream();
+
+          const mimeType = mediaRecorder.mimeType || recordedChunks[0]?.type || 'audio/webm';
+          const blob = new Blob(recordedChunks, { type: mimeType });
+          if (!blob.size) {
+            showMessage('La grabación está vacía. Prueba de nuevo o sube un archivo.', 'error');
+            resetRecorderUi();
+            return;
+          }
+          if (blob.size > MAX_AUDIO_BYTES) {
+            showMessage('La grabación supera 10 MB. Hazla más corta o sube otro archivo.', 'error');
+            clearAudio();
+            return;
+          }
+
+          audioFile = blob;
+          audioMimeType = mimeType;
+          audioFileName = `grabacion_${Date.now()}.${extensionForMime(mimeType)}`;
+          audioDataUrl = await blobToDataUrl(blob);
+          showAudioPreview(blob, `Grabación de ${formatTime(seconds)} · ${formatBytes(blob.size)}`);
+          setRecorderReadyUi();
+        };
+
+        mediaRecorder.onerror = () => {
+          stopTimer();
+          stopMediaStream();
+          showMessage('Se produjo un error durante la grabación. Puedes subir un archivo de audio.', 'error');
+          resetRecorderUi();
+        };
+
+        mediaRecorder.start();
+        startTimer();
+        setRecordingUi();
+      } catch (error) {
+        stopMediaStream();
+        resetRecorderUi();
+        const blocked = error && ['NotAllowedError', 'SecurityError'].includes(error.name);
+        showMessage(
+          blocked
+            ? 'No se ha podido usar el micrófono. Revisa su permiso o utiliza “Subir un archivo de audio”.'
+            : 'No se ha podido iniciar la grabación. Utiliza “Subir un archivo de audio”.',
+          'error'
+        );
+      }
+    }
+
+    function startTimer() {
+      seconds = 0;
+      updateTimer();
+      timerInterval = setInterval(() => {
+        seconds += 1;
+        updateTimer();
+        if (seconds >= CONFIG.max_segundos_audio && mediaRecorder?.state === 'recording') {
+          mediaRecorder.stop();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function updateTimer() {
+      const timer = document.getElementById('timer');
+      if (timer) timer.textContent = formatTime(seconds);
+    }
+
+    function formatTime(totalSeconds) {
+      const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const secs = String(totalSeconds % 60).padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    function setRecordingUi() {
+      document.getElementById('recordBtn').textContent = '⏹️ Detener';
+      document.getElementById('recordBtn').classList.add('recording');
+      document.getElementById('recordStatus').textContent = 'Grabando…';
+      document.getElementById('recordDot').classList.add('live');
+      document.getElementById('wave').classList.add('live');
+      document.getElementById('clearAudioBtn').style.display = 'none';
+    }
+
+    function setRecorderReadyUi() {
+      document.getElementById('recordBtn').textContent = '🎙️ Volver a grabar';
+      document.getElementById('recordBtn').classList.remove('recording');
+      document.getElementById('recordStatus').textContent = 'Audio preparado. Escúchalo antes de enviar.';
+      document.getElementById('recordDot').classList.remove('live');
+      document.getElementById('wave').classList.remove('live');
+      document.getElementById('clearAudioBtn').style.display = 'inline-block';
+    }
+
+    function resetRecorderUi() {
+      const recordBtn = document.getElementById('recordBtn');
+      if (!recordBtn) return;
+      recordBtn.textContent = '🎙️ Grabar audio';
+      recordBtn.classList.remove('recording');
+      document.getElementById('recordStatus').textContent = 'Pulsa el botón y empieza a hablar';
+      document.getElementById('recordDot').classList.remove('live');
+      document.getElementById('wave').classList.remove('live');
+    }
+
+    function stopMediaStream() {
+      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+      mediaStream = null;
+    }
+
+    function extensionForMime(mimeType) {
+      const type = String(mimeType || '').toLowerCase();
+      if (type.includes('mp4')) return 'm4a';
+      if (type.includes('ogg')) return 'ogg';
+      if (type.includes('wav')) return 'wav';
+      if (type.includes('mpeg')) return 'mp3';
+      return 'webm';
+    }
+
+    function blobToDataUrl(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(String(reader.result || ''));
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function handleAudioFile(event) {
+      clearMessage();
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        clearAudio();
+        return;
+      }
+
+      const isAudio = file.type.startsWith('audio/') || /\.(mp3|m4a|wav|ogg|webm|aac)$/i.test(file.name);
+      if (!isAudio) {
+        event.target.value = '';
+        showMessage('El archivo seleccionado no parece ser un audio válido.', 'error');
+        clearAudio();
+        return;
+      }
+
+      if (file.size > MAX_AUDIO_BYTES) {
+        event.target.value = '';
+        showMessage('El archivo supera el máximo de 10 MB. Reduce su tamaño o elige otro.', 'error');
+        clearAudio();
+        return;
+      }
+
+      if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+      audioFile = file;
+      audioFileName = file.name;
+      audioMimeType = file.type || 'audio/webm';
+      const reader = new FileReader();
+      reader.onload = () => {
+        audioDataUrl = reader.result;
+        showAudioPreview(file, `${file.name} · ${formatBytes(file.size)}`);
+        setRecorderReadyUi();
+      };
+      reader.onerror = () => {
+        clearAudio();
+        showMessage('No se ha podido leer el archivo de audio.', 'error');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showAudioPreview(file, label) {
+      if (audioObjectUrl) URL.revokeObjectURL(audioObjectUrl);
+      audioObjectUrl = URL.createObjectURL(file);
+
+      const preview = document.getElementById('audioPreview');
+      preview.src = audioObjectUrl;
+      preview.style.display = 'block';
+
+      const info = document.getElementById('audioFileInfo');
+      info.textContent = label;
+      info.style.display = 'block';
+      document.getElementById('clearAudioBtn').style.display = 'inline-block';
+    }
+
+    function clearAudio(resetTimer = true) {
+      if (mediaRecorder?.state === 'recording') mediaRecorder.stop();
+      stopTimer();
+      stopMediaStream();
+      audioFile = null;
+      audioDataUrl = '';
+      audioFileName = '';
+      audioMimeType = '';
+      recordedChunks = [];
+
+      const input = document.getElementById('audioFile');
+      if (input) input.value = '';
+
+      const preview = document.getElementById('audioPreview');
+      if (preview) {
+        preview.pause();
+        preview.removeAttribute('src');
+        preview.load();
+        preview.style.display = 'none';
+      }
+
+      if (audioObjectUrl) {
+        URL.revokeObjectURL(audioObjectUrl);
+        audioObjectUrl = '';
+      }
+
+      const info = document.getElementById('audioFileInfo');
+      if (info) {
+        info.textContent = '';
+        info.style.display = 'none';
+      }
+
+      const clearButton = document.getElementById('clearAudioBtn');
+      if (clearButton) clearButton.style.display = 'none';
+
+      if (resetTimer) {
+        seconds = 0;
+        updateTimer();
+      }
+      resetRecorderUi();
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes) return '0 KB';
+      const units = ['bytes', 'KB', 'MB'];
+      const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+      const value = bytes / Math.pow(1024, index);
+      return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+    }
+
+    function updateCounter(element, counterId, max) {
+      const count = countWords(element.value);
+      const counter = document.getElementById(counterId);
+      counter.textContent = `${count} / ${max} palabras`;
+      counter.classList.toggle('over', count > max);
+    }
+
+    function countWords(value) {
+      const text = String(value || '').trim();
+      return text ? text.split(/\s+/).length : 0;
+    }
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function clearMessage() {
+      message.textContent = '';
+      message.className = 'message';
+    }
+
+    function showSuccess(text) {
+      clearMessage();
+      document.querySelectorAll('.card').forEach(el => el.classList.remove('active'));
+      document.getElementById('successStep').classList.add('active');
+      document.querySelectorAll('.progress span').forEach(el => el.classList.add('active'));
+      document.getElementById('successStep').querySelector('p').textContent = text;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      form.reset();
+      clearAudio();
+      setResponseMode('text');
+      pickQuestion();
+      updateCounter(resumen, 'summaryCounter', CONFIG.max_palabras_resumen);
+      updateCounter(respuestaTexto, 'answerCounter', CONFIG.max_palabras_respuesta);
+      goToStep(1);
+    }
+  </script>
 </body>
 </html>
