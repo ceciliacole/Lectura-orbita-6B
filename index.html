@@ -924,7 +924,7 @@
       updateCounter(respuestaTexto, 'answerCounter', CONFIG.max_palabras_respuesta)
     );
 
-    form.addEventListener('submit', async (event) => {
+    form.addEventListener('submit', (event) => {
       event.preventDefault();
       clearMessage();
 
@@ -937,7 +937,7 @@
       }
 
       const submitBtn = document.getElementById('submitBtn');
-      submitBtn.textContent = 'Guardando...';
+      submitBtn.textContent = 'Enviando...';
       submitBtn.disabled = true;
       form.classList.add('loading');
 
@@ -959,39 +959,28 @@
         requestId: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random())
       };
 
-      const body = new URLSearchParams();
-      body.set('payload', JSON.stringify(payload));
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
-
       try {
-        await fetch(saveUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-          },
-          body: body.toString(),
-          signal: controller.signal
-        });
+        const transportForm = document.getElementById('transportForm');
+        const transportPayload = document.getElementById('transportPayload');
+        transportForm.action = saveUrl;
+        transportPayload.value = JSON.stringify(payload);
+        transportForm.submit();
 
-        clearTimeout(timeoutId);
-        showSuccess(
-          responseMode === 'audio'
-            ? 'La lectura y el audio se han enviado. Puedes comprobar el archivo en Drive.'
-            : '¡Lectura registrada correctamente!'
-        );
+        setTimeout(() => {
+          form.classList.remove('loading');
+          submitBtn.textContent = 'Registrar mi lectura';
+          submitBtn.disabled = false;
+          showSuccess(
+            responseMode === 'audio'
+              ? '¡Lectura enviada! El audio se está guardando en Drive.'
+              : '¡Lectura enviada correctamente!'
+          );
+        }, 1800);
       } catch (error) {
-        clearTimeout(timeoutId);
-        const message = error && error.name === 'AbortError'
-          ? 'El envío ha tardado demasiado. Comprueba la hoja Lecturas antes de volver a enviarlo para evitar duplicados.'
-          : 'No se ha podido enviar la lectura. Comprueba la conexión y vuelve a intentarlo.';
-        showMessage(message, 'error');
-      } finally {
         form.classList.remove('loading');
         submitBtn.textContent = 'Registrar mi lectura';
         submitBtn.disabled = false;
+        showMessage('No se ha podido iniciar el envío. Comprueba la conexión y vuelve a intentarlo.', 'error');
       }
     });
 
