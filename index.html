@@ -929,13 +929,16 @@
       clearMessage();
 
       if (!validateStep(3)) return;
-      if (!APPS_SCRIPT_URL.startsWith('https://script.google.com/macros/s/')) {
-        showMessage('La aplicación aún no tiene configurada la dirección de guardado.', 'error');
+
+      const saveUrl = String(APPS_SCRIPT_URL || '').trim();
+      if (!saveUrl.startsWith('https://script.google.com/macros/s/') || !saveUrl.endsWith('/exec')) {
+        showMessage('La dirección de guardado no es válida. Debe ser la URL de Apps Script terminada en /exec.', 'error');
         return;
       }
 
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.textContent = 'Guardando...';
+      submitBtn.disabled = true;
       form.classList.add('loading');
 
       const data = new FormData(form);
@@ -952,48 +955,44 @@
           : '',
         audioDataUrl: responseMode === 'audio' ? audioDataUrl : '',
         audioFileName: responseMode === 'audio' ? audioFileName : '',
-        audioMimeType: responseMode === 'audio' ? audioMimeType : ''
+        audioMimeType: responseMode === 'audio' ? audioMimeType : '',
+        requestId: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random())
       };
 
-      const transportForm = document.getElementById('transportForm');
-      const transportPayload = document.getElementById('transportPayload');
-      const requestId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
-      payload.requestId = requestId;
+      const body = new URLSearchParams();
+      body.set('payload', JSON.stringify(payload));
 
-      let completed = false;
-      const timeoutId = setTimeout(() => {
-        if (completed) return;
-        completed = true;
-        window.removeEventListener('message', handleBackendMessage);
-        form.classList.remove('loading');
-        submitBtn.textContent = 'Registrar mi lectura';
-        showMessage(
-          'Apps Script no ha confirmado el guardado después de 90 segundos. Revisa la hoja Lecturas y el apartado Ejecuciones de Apps Script: la respuesta puede haberse guardado aunque la confirmación haya tardado.',
-          'error'
-        );
-      }, 90000);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-      function handleBackendMessage(event) {
-        const data = event.data || {};
-        if (!data || data.source !== 'lectura-backend' || data.requestId !== requestId || completed) return;
+      try {
+        await fetch(saveUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: body.toString(),
+          signal: controller.signal
+        });
 
-        completed = true;
         clearTimeout(timeoutId);
-        window.removeEventListener('message', handleBackendMessage);
+        showSuccess(
+          responseMode === 'audio'
+            ? 'La lectura y el audio se han enviado. Puedes comprobar el archivo en Drive.'
+            : '¡Lectura registrada correctamente!'
+        );
+      } catch (error) {
+        clearTimeout(timeoutId);
+        const message = error && error.name === 'AbortError'
+          ? 'El envío ha tardado demasiado. Comprueba la hoja Lecturas antes de volver a enviarlo para evitar duplicados.'
+          : 'No se ha podido enviar la lectura. Comprueba la conexión y vuelve a intentarlo.';
+        showMessage(message, 'error');
+      } finally {
         form.classList.remove('loading');
         submitBtn.textContent = 'Registrar mi lectura';
-
-        if (data.ok) {
-          showSuccess(data.message || '¡Lectura registrada correctamente!');
-        } else {
-          showMessage(data.message || 'Apps Script no pudo guardar la lectura.', 'error');
-        }
+        submitBtn.disabled = false;
       }
-
-      window.addEventListener('message', handleBackendMessage);
-      transportForm.action = APPS_SCRIPT_URL;
-      transportPayload.value = JSON.stringify(payload);
-      transportForm.submit();
     });
 
     function goToStep(step) {
